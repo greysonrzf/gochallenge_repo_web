@@ -7,35 +7,30 @@ function App() {
   const [repositories, setRepositories] = useState([])
 
   useEffect(() => {
-    loadRepositories()
-  }, [repositories])
-
-  async function loadRepositories() {
-    const { data } = await api.get('/repositories')
-
-    setRepositories(data)
-  }
+    api.get('/repositories').then(response => {
+      setRepositories(response.data)
+    })
+  }, [])
 
   async function handleAddRepository() {
-    const data = {
+    const response = await api.post('/repositories', {
       title: "Meu Repositorio",
       url: "https://github.com/greysonrzf/gochallenge_repo_backend",
       techs: ["NodeJs", "JavaScript"]
-    }
+    })
 
-    loadRepositories()
-    try {
-      await api.post('/repositories', data)
-    } catch (err) {
-      console.log(err)
-    }
 
+
+    setRepositories([...repositories, response.data])
   }
+
 
   async function handleRemoveRepository(id) {
     await api.delete(`/repositories/${id}`)
 
-    loadRepositories()
+    const updatedRepositories = repositories.filter(repository => repository.id !== id)
+
+    setRepositories(updatedRepositories)
   }
 
   return (
